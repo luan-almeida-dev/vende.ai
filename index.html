@@ -3,36 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vende.AI - Painel de Controlo e Admin</title>
+    <title>Vende.AI - Plataforma Completa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #02040a;
             overflow-x: hidden;
         }
         .background-aurora {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at 50% 0%, rgba(49, 46, 229, 0.2) 0%, rgba(8, 10, 26, 0) 70%);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 50% 0%, rgba(49, 46, 229, 0.15) 0%, rgba(8, 10, 26, 0) 70%);
             z-index: -1;
             animation: background-pan 20s linear infinite;
         }
-        @keyframes background-pan {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes background-pan { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .loader {
             border: 4px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
@@ -41,18 +31,9 @@
             height: 24px;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .fade-in-up {
-            animation: fadeInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-            opacity: 0;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .fade-in-up { animation: fadeInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; opacity: 0; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .gradient-text {
             background: linear-gradient(90deg, #60a5fa, #c084fc);
             -webkit-background-clip: text;
@@ -66,31 +47,14 @@
             -webkit-backdrop-filter: blur(16px);
             transition: all 0.3s ease-in-out;
         }
-        .styled-card:hover {
-            border-color: #8b5cf6;
-            transform: translateY(-4px);
-        }
-        .side-nav a {
-            transition: all 0.2s ease-in-out;
-            border-left: 2px solid transparent;
-        }
-        .side-nav a:hover, .side-nav a.active {
-            color: #c084fc;
-            border-left-color: #c084fc;
-            background-color: rgba(192, 132, 252, 0.05);
-        }
-        .modal-overlay {
-            transition: opacity 0.3s ease;
-        }
-        .choice-button {
-            transition: all 0.2s ease-in-out;
-        }
-        .choice-button.selected {
-            background-color: #6d28d9;
-            border-color: #8b5cf6;
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-        }
+        .styled-card:hover { border-color: #8b5cf6; transform: translateY(-4px); }
+        .content-container strong { color: #a78bfa; font-weight: 600; }
+        .content-container code { background-color: rgba(107, 114, 128, 0.2); color: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+        .sub-card { background-color: rgba(10, 14, 25, 0.7); border: 1px solid #4b5563; border-radius: 0.75rem; padding: 1rem; margin-top: 1rem; }
+        .side-nav a { transition: all 0.2s ease-in-out; border-left: 2px solid transparent; }
+        .side-nav a:hover, .side-nav a.active { color: #c084fc; border-left-color: #c084fc; background-color: rgba(192, 132, 252, 0.05); }
+        .choice-button { transition: all 0.2s ease-in-out; }
+        .choice-button.selected { background-color: #6d28d9; border-color: #8b5cf6; transform: scale(1.05); box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
     </style>
 </head>
 <body class="text-gray-200 antialiased">
@@ -142,38 +106,16 @@
                 + Gerar Novo Plano de Ação
             </button>
         </div>
-        <div id="plans-list" class="styled-card rounded-2xl p-6">
-            <!-- Lista de planos será inserida aqui -->
-        </div>
+        <div id="plans-list" class="styled-card rounded-2xl p-6"></div>
     </template>
 
-    <template id="admin-dashboard-template">
-         <header class="text-center mb-8 flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-red-400">Painel de Administração</h1>
-            <div>
-                <span id="admin-email" class="text-gray-400 mr-4"></span>
-                <button id="admin-logout-btn" class="text-indigo-400 hover:text-indigo-300 font-semibold transition">Sair</button>
-            </div>
-        </header>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="styled-card p-6 rounded-2xl text-center"><h3 class="text-lg text-gray-400">Total de Utilizadores</h3><p class="text-4xl font-bold">1,234</p></div>
-            <div class="styled-card p-6 rounded-2xl text-center"><h3 class="text-lg text-gray-400">Planos Gerados (Hoje)</h3><p class="text-4xl font-bold">56</p></div>
-            <div class="styled-card p-6 rounded-2xl text-center"><h3 class="text-lg text-gray-400">Assinantes Ativos</h3><p class="text-4xl font-bold">289</p></div>
-        </div>
-        <div class="styled-card rounded-2xl p-6"><h3 class="text-xl font-bold mb-4">Atividade Recente</h3><canvas id="activityChart"></canvas></div>
-    </template>
-    
     <template id="generator-template">
         <main class="styled-card rounded-2xl p-6 md:p-8 shadow-2xl shadow-indigo-500/10 max-w-5xl mx-auto">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold gradient-text">Criar Novo Plano de Ação</h2>
                 <button id="back-to-dashboard-btn" class="text-indigo-400 hover:text-indigo-300 font-semibold transition">Voltar ao Painel</button>
             </div>
-            <div id="strategy-selection">
-                <div class="mb-6"><h3 class="text-xl font-semibold text-center mb-4">Qual é o seu objetivo principal hoje?</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><button class="choice-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg border-2 border-gray-600" data-choice="product">Divulgar um Produto Específico</button><button class="choice-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg border-2 border-gray-600" data-choice="store">Divulgar minha Loja/Marca</button></div></div>
-                <div class="mb-8"><h3 class="text-xl font-semibold text-center mb-4">Onde seu negócio opera?</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><button class="choice-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg border-2 border-gray-600" data-type="online">Online (E-commerce)</button><button class="choice-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg border-2 border-gray-600" data-type="physical">Físico (Loja de Rua)</button><button class="choice-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg border-2 border-gray-600" data-type="both">Ambos</button></div></div>
-            </div>
-            <div id="dynamic-form" class="hidden"><div class="grid md:grid-cols-2 gap-6 items-center mb-6"><div class="text-center"><label for="imageUpload" class="cursor-pointer inline-block bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold py-3 px-6 rounded-lg transition w-full">📷 Enviar Foto</label><input type="file" id="imageUpload" class="hidden" accept="image/*"></div><div class="relative"><input type="url" id="productUrl" class="w-full bg-gray-900/50 border border-gray-700 rounded-lg pl-4 pr-32 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition" placeholder="Ou cole o link..."><button id="analyzeUrlButton" class="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md text-sm transition">Analisar</button></div></div><p class="text-sm text-gray-500 mt-2 text-center mb-6">A IA preencherá os campos abaixo. Depois, é só editar e gerar seu plano!</p><div id="imageAnalysisSection" class="mb-4 text-center hidden"><img id="imagePreview" class="max-h-60 rounded-lg inline-block shadow-lg" /><p id="imageAnalysisStatus" class="text-lg font-semibold text-purple-400 mt-3"></p><div id="itemSelectionContainer" class="mt-4 flex flex-wrap justify-center gap-3"></div></div>
+            <div id="dynamic-form">
                 <div class="space-y-6">
                     <div><label for="productName" class="block text-sm font-medium text-gray-400 mb-2">1. Nome do Produto/Loja</label><input type="text" id="productName" class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition" placeholder="Preenchido pela IA ou manualmente"></div>
                     <div class="grid md:grid-cols-2 gap-6"><div><label for="targetAudience" class="block text-sm font-medium text-gray-400 mb-2">2. Público-Alvo</label><input type="text" id="targetAudience" class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition" placeholder="Ex: Mulheres de 25 a 40 anos"></div><div><label for="brandVoice" class="block text-sm font-medium text-gray-400 mb-2">3. Tom de Voz da Marca</label><input type="text" id="brandVoice" class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition" placeholder="Ex: Divertido e jovem, profissional"></div></div>
@@ -189,45 +131,22 @@
         <section id="resultsSection"><div class="flex flex-col md:flex-row gap-8 lg:gap-12"><aside class="md:w-1/4 lg:w-1/5"><nav id="side-menu" class="sticky top-20 side-nav flex flex-col space-y-2"></nav></aside><div id="results-content" class="md:w-3/4 lg:w-4/5 space-y-12"></div></div></section>
     </template>
 
-    <script type="module">
-        // --- Módulos Firebase ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- Configuração ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' 
-            ? JSON.parse(__firebase_config) 
-            : { apiKey: "AIza...", authDomain: "...", projectId: "..." }; // Placeholder
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        
-        let app, auth, db, userId;
-
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-        } catch (e) {
-            console.error("Erro na inicialização do Firebase:", e);
-            document.getElementById('app-container').innerHTML = `<div class="styled-card p-8 text-center text-red-400"><strong>Erro Crítico:</strong> A configuração do Firebase é inválida. A aplicação não pode ser iniciada.</div>`;
-        }
-
+    <script>
         const appContainer = document.getElementById('app-container');
-
-        // --- Lógica de Autenticação e Roteamento ---
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                userId = user.uid;
+        
+        // --- Lógica de Autenticação e Roteamento (Simulada) ---
+        function checkAuth() {
+            const user = JSON.parse(localStorage.getItem('vende-ai-user'));
+            if (user && user.email) {
                 if (user.email === 'admin@vende.ai') {
                     renderAdminDashboard();
                 } else {
                     renderUserDashboard();
                 }
             } else {
-                userId = null;
                 renderLogin();
             }
-        });
+        }
 
         // --- Funções de Renderização de Views ---
         function renderLogin() {
@@ -244,20 +163,24 @@
             appContainer.innerHTML = '';
             appContainer.appendChild(template);
             
-            document.getElementById('user-email').textContent = auth.currentUser.email;
-            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+            const user = JSON.parse(localStorage.getItem('vende-ai-user'));
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
             document.getElementById('new-plan-btn').addEventListener('click', renderGeneratorView);
 
             loadUserPlans();
         }
         
         function renderAdminDashboard() {
-            const template = document.getElementById('admin-dashboard-template').content.cloneNode(true);
+            // Esta função é apenas uma simulação para o admin
+            const template = document.getElementById('admin-dashboard-template');
+            if(!template) return;
+            const content = template.content.cloneNode(true);
             appContainer.innerHTML = '';
-            appContainer.appendChild(template);
+            appContainer.appendChild(content);
 
-            document.getElementById('admin-email').textContent = `Admin: ${auth.currentUser.email}`;
-            document.getElementById('admin-logout-btn').addEventListener('click', () => signOut(auth));
+            document.getElementById('admin-email').textContent = `Admin: admin@vende.ai`;
+            document.getElementById('admin-logout-btn').addEventListener('click', handleLogout);
 
             const ctx = document.getElementById('activityChart').getContext('2d');
             new Chart(ctx, {
@@ -283,179 +206,152 @@
             appContainer.appendChild(template);
             
             document.getElementById('back-to-dashboard-btn').addEventListener('click', renderUserDashboard);
-            
-            const generateButton = document.getElementById('generateButton');
-            const strategySelection = document.getElementById('strategy-selection');
-            const dynamicForm = document.getElementById('dynamic-form');
-            
-            let userChoice = { objective: null, type: null };
-
-            strategySelection.addEventListener('click', (e) => {
-                if (e.target.dataset.choice) {
-                    document.querySelectorAll('[data-choice]').forEach(btn => btn.classList.remove('selected'));
-                    e.target.classList.add('selected');
-                    userChoice.objective = e.target.dataset.choice;
-                }
-                if (e.target.dataset.type) {
-                    document.querySelectorAll('[data-type]').forEach(btn => btn.classList.remove('selected'));
-                    e.target.classList.add('selected');
-                    userChoice.type = e.target.dataset.type;
-                }
-
-                if (userChoice.objective && userChoice.type) {
-                    strategySelection.classList.add('hidden');
-                    dynamicForm.classList.remove('hidden');
-                    dynamicForm.classList.add('fade-in-up');
-                    const nameLabel = document.querySelector('label[for="productName"]');
-                    const descLabel = document.querySelector('label[for="productDescription"]');
-                    if (userChoice.objective === 'store') {
-                        nameLabel.textContent = '1. Nome da Loja';
-                        descLabel.textContent = '4. O que sua loja vende e quais seus diferenciais?';
-                    } else {
-                        nameLabel.textContent = '1. Nome do Produto';
-                        descLabel.textContent = '4. Descrição e Diferenciais do Produto';
-                    }
-                }
-            });
-
-            generateButton.addEventListener('click', async () => {
-                const productName = document.getElementById('productName').value;
-                const targetAudience = document.getElementById('targetAudience').value;
-                const productDescription = document.getElementById('productDescription').value;
-                const brandVoice = document.getElementById('brandVoice').value;
-
-                if (!validateInputs(productName, targetAudience, productDescription)) return;
-                setLoadingState(true, document.getElementById('buttonText'), document.getElementById('loader'), generateButton);
-
-                try {
-                    const aiResponse = {}; // Simulação de resposta da IA
-                    
-                    const planRef = await addDoc(collection(db, `artifacts/${appId}/users/${userId}/plans`), {
-                        title: productName,
-                        content: aiResponse,
-                        status: 'planejamento',
-                        createdAt: serverTimestamp()
-                    });
-
-                    renderPlanView(planRef.id);
-
-                } catch (error) {
-                    console.error("Erro ao chamar a API da IA:", error);
-                    showError();
-                } finally {
-                    setLoadingState(false, document.getElementById('buttonText'), document.getElementById('loader'), generateButton);
-                }
-            });
+            document.getElementById('generateButton').addEventListener('click', handleGenerateAndSave);
         }
         
-        async function renderPlanView(planId) {
+        function renderPlanView(planId) {
             const template = document.getElementById('plan-view-template').content.cloneNode(true);
             appContainer.innerHTML = '';
             appContainer.appendChild(template);
             
             document.getElementById('back-to-dashboard-btn-plan').addEventListener('click', renderUserDashboard);
 
-            const planRef = doc(db, `artifacts/${appId}/users/${userId}/plans`, planId);
-            const docSnap = await getDoc(planRef);
+            const plans = JSON.parse(localStorage.getItem('vende-ai-plans')) || [];
+            const planData = plans.find(p => p.id === planId);
 
-            if (docSnap.exists()) {
-                const planData = docSnap.data();
+            if (planData) {
                 document.getElementById('plan-title').textContent = planData.title;
-                // displayContent(planData.content); // Função que preenche os cards
+                // A função displayContent seria chamada aqui com planData.content
+                showToast(`Plano "${planData.title}" carregado.`, 'success');
             } else {
                 appContainer.innerHTML = `<p class="text-center text-red-500">Plano não encontrado.</p>`;
             }
         }
 
-
-        // --- Lógica de Login/Signup ---
-        async function handleLogin() {
+        // --- Lógica de Login/Signup (Simulada) ---
+        function handleLogin() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const authError = document.getElementById('auth-error');
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
+
+            if (email === 'admin@vende.ai' && password) {
+                localStorage.setItem('vende-ai-user', JSON.stringify({ email }));
+                checkAuth();
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('vende-ai-users')) || {};
+            if (users[email] && users[email] === password) {
+                localStorage.setItem('vende-ai-user', JSON.stringify({ email }));
                 authError.classList.add('hidden');
-            } catch (error) {
+                checkAuth();
+            } else {
                 authError.textContent = "Email ou senha inválidos.";
                 authError.classList.remove('hidden');
             }
         }
 
-        async function handleSignup() {
+        function handleSignup() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const authError = document.getElementById('auth-error');
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                const profileRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile`, "main");
-                await setDoc(profileRef, { name: 'Minha Nova Marca', plan: 'free', createdAt: serverTimestamp() });
-                authError.classList.add('hidden');
-            } catch (error) {
-                authError.textContent = "Erro ao criar conta. Verifique os dados.";
+
+            if (!email || !password) {
+                authError.textContent = "Por favor, preencha todos os campos.";
                 authError.classList.remove('hidden');
+                return;
             }
+
+            let users = JSON.parse(localStorage.getItem('vende-ai-users')) || {};
+            if (users[email]) {
+                authError.textContent = "Este email já está registado.";
+                authError.classList.remove('hidden');
+                return;
+            }
+
+            users[email] = password;
+            localStorage.setItem('vende-ai-users', JSON.stringify(users));
+            localStorage.setItem('vende-ai-user', JSON.stringify({ email }));
+            authError.classList.add('hidden');
+            checkAuth();
         }
 
-        // --- Lógica do Painel do Utilizador ---
+        function handleLogout() {
+            localStorage.removeItem('vende-ai-user');
+            checkAuth();
+        }
+
+        // --- Lógica do Painel do Utilizador (Simulada) ---
         function loadUserPlans() {
-            if (!userId) return;
-            const plansCollection = collection(db, `artifacts/${appId}/users/${userId}/plans`);
             const plansList = document.getElementById('plans-list');
+            const plans = JSON.parse(localStorage.getItem('vende-ai-plans')) || [];
+            
+            if (plans.length === 0) {
+                plansList.innerHTML = `<p class="text-center text-gray-400">Nenhum plano de ação encontrado. Clique em "Gerar Novo Plano" para começar!</p>`;
+                return;
+            }
 
-            onSnapshot(plansCollection, (snapshot) => {
-                if (snapshot.empty) {
-                    plansList.innerHTML = `<p class="text-center text-gray-400">Nenhum plano de ação encontrado. Clique em "Gerar Novo Plano" para começar!</p>`;
-                    return;
-                }
-                plansList.innerHTML = ''; // Limpa a lista
-                snapshot.forEach(doc => {
-                    const plan = doc.data();
-                    const planElement = document.createElement('div');
-                    planElement.className = 'flex items-center justify-between p-4 border-b border-gray-700';
-                    planElement.innerHTML = `
-                        <div>
-                            <p class="font-bold text-lg">${plan.title || 'Plano Sem Título'}</p>
-                            <p class="text-sm text-gray-400">Criado em: ${plan.createdAt?.toDate().toLocaleDateString() || 'Data indisponível'}</p>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <select class="status-select bg-gray-800 border border-gray-600 rounded-md px-2 py-1 text-sm" data-id="${doc.id}">
-                                <option value="planejamento" ${plan.status === 'planejamento' ? 'selected' : ''}>Planejamento</option>
-                                <option value="execucao" ${plan.status === 'execucao' ? 'selected' : ''}>Em Execução</option>
-                                <option value="concluido" ${plan.status === 'concluido' ? 'selected' : ''}>Concluído</option>
-                            </select>
-                            <button class="view-plan-btn text-blue-400 hover:underline" data-id="${doc.id}">Ver Plano</button>
-                        </div>
-                    `;
-                    plansList.appendChild(planElement);
-                });
+            plansList.innerHTML = '';
+            plans.forEach(plan => {
+                const planElement = document.createElement('div');
+                planElement.className = 'flex items-center justify-between p-4 border-b border-gray-700';
+                planElement.innerHTML = `
+                    <div>
+                        <p class="font-bold text-lg">${plan.title || 'Plano Sem Título'}</p>
+                        <p class="text-sm text-gray-400">Criado em: ${new Date(plan.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <select class="status-select bg-gray-800 border border-gray-600 rounded-md px-2 py-1 text-sm" data-id="${plan.id}">
+                            <option value="planejamento" ${plan.status === 'planejamento' ? 'selected' : ''}>Planejamento</option>
+                            <option value="execucao" ${plan.status === 'execucao' ? 'selected' : ''}>Em Execução</option>
+                            <option value="concluido" ${plan.status === 'concluido' ? 'selected' : ''}>Concluído</option>
+                        </select>
+                        <button class="view-plan-btn text-blue-400 hover:underline" data-id="${plan.id}">Ver Plano</button>
+                    </div>
+                `;
+                plansList.appendChild(planElement);
+            });
 
-                document.querySelectorAll('.status-select').forEach(select => {
-                    select.addEventListener('change', (e) => {
-                        updatePlanStatus(e.target.dataset.id, e.target.value);
-                    });
-                });
-                document.querySelectorAll('.view-plan-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        renderPlanView(e.target.dataset.id);
-                    });
-                });
+            document.querySelectorAll('.status-select').forEach(select => {
+                select.addEventListener('change', (e) => updatePlanStatus(e.target.dataset.id, e.target.value));
+            });
+            document.querySelectorAll('.view-plan-btn').forEach(button => {
+                button.addEventListener('click', (e) => renderPlanView(e.target.dataset.id));
             });
         }
 
-        async function updatePlanStatus(planId, newStatus) {
-            if (!userId || !planId) return;
-            const planRef = doc(db, `artifacts/${appId}/users/${userId}/plans`, planId);
-            try {
-                await updateDoc(planRef, { status: newStatus });
+        function updatePlanStatus(planId, newStatus) {
+            let plans = JSON.parse(localStorage.getItem('vende-ai-plans')) || [];
+            const planIndex = plans.findIndex(p => p.id === planId);
+            if (planIndex > -1) {
+                plans[planIndex].status = newStatus;
+                localStorage.setItem('vende-ai-plans', JSON.stringify(plans));
                 showToast('Status atualizado com sucesso!', 'success');
-            } catch (error) {
-                console.error("Erro ao atualizar status:", error);
-                showToast('Falha ao atualizar status.', 'error');
             }
         }
         
+        async function handleGenerateAndSave() {
+            const productName = document.getElementById('productName').value;
+            // Simular geração e salvamento
+            showToast('Gerando e salvando seu plano...', 'success');
+            
+            const newPlan = {
+                id: `plan_${Date.now()}`,
+                title: productName || "Novo Plano de Marketing",
+                content: {}, // A resposta da IA iria aqui
+                status: 'planejamento',
+                createdAt: new Date().toISOString()
+            };
+
+            let plans = JSON.parse(localStorage.getItem('vende-ai-plans')) || [];
+            plans.unshift(newPlan); // Adiciona no início
+            localStorage.setItem('vende-ai-plans', JSON.stringify(plans));
+
+            setTimeout(() => {
+                renderPlanView(newPlan.id);
+            }, 1500);
+        }
+
         function showToast(message, type = 'success') {
             const copyFeedback = document.createElement('div');
             copyFeedback.id = 'copyFeedback';
@@ -467,9 +363,10 @@
                 setTimeout(() => copyFeedback.remove(), 300);
             }, 2000);
         }
-        
-        // --- Funções restantes (getAiContent, displayContent, etc.) precisam ser definidas aqui ---
-        // ...
+
+        // --- Inicialização da App ---
+        checkAuth();
+
     </script>
 </body>
 </html>
