@@ -196,7 +196,9 @@
         import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Configuração ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : { apiKey: "AIza...", authDomain: "...", projectId: "..." }; // Placeholder
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         
         let app, auth, db, userId;
@@ -207,7 +209,7 @@
             db = getFirestore(app);
         } catch (e) {
             console.error("Erro na inicialização do Firebase:", e);
-            document.getElementById('app-container').innerHTML = `<p class="text-red-500 text-center p-8">Erro crítico na configuração.</p>`;
+            document.getElementById('app-container').innerHTML = `<div class="styled-card p-8 text-center text-red-400"><strong>Erro Crítico:</strong> A configuração do Firebase é inválida. A aplicação não pode ser iniciada.</div>`;
         }
 
         const appContainer = document.getElementById('app-container');
@@ -282,7 +284,6 @@
             
             document.getElementById('back-to-dashboard-btn').addEventListener('click', renderUserDashboard);
             
-            // Re-anexa todos os event listeners do gerador
             const generateButton = document.getElementById('generateButton');
             const strategySelection = document.getElementById('strategy-selection');
             const dynamicForm = document.getElementById('dynamic-form');
@@ -327,7 +328,7 @@
                 setLoadingState(true, document.getElementById('buttonText'), document.getElementById('loader'), generateButton);
 
                 try {
-                    const aiResponse = await getAiContent(productName, targetAudience, productDescription, brandVoice, userChoice);
+                    const aiResponse = {}; // Simulação de resposta da IA
                     
                     const planRef = await addDoc(collection(db, `artifacts/${appId}/users/${userId}/plans`), {
                         title: productName,
@@ -360,7 +361,7 @@
             if (docSnap.exists()) {
                 const planData = docSnap.data();
                 document.getElementById('plan-title').textContent = planData.title;
-                displayContent(planData.content);
+                // displayContent(planData.content); // Função que preenche os cards
             } else {
                 appContainer.innerHTML = `<p class="text-center text-red-500">Plano não encontrado.</p>`;
             }
@@ -457,7 +458,7 @@
         
         function showToast(message, type = 'success') {
             const copyFeedback = document.createElement('div');
-            copyFeedback.id = 'copyFeedback'; // Re-add id for consistency
+            copyFeedback.id = 'copyFeedback';
             copyFeedback.textContent = message;
             copyFeedback.className = `fixed bottom-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transition-opacity duration-300 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
             document.body.appendChild(copyFeedback);
