@@ -1,1 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vende.AI - Painel de Controlo e Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #02040a;
+            overflow-x: hidden;
+        }
+        .background-aurora {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 0%, rgba(49, 46, 229, 0.2) 0%, rgba(8, 10, 26, 0) 70%);
+            z-index: -1;
+            animation: background-pan 20s linear infinite;
+        }
+        @keyframes background-pan {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            opacity: 0;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .styled-card {
+            border: 1px solid #374151;
+            background-color: rgba(17, 25, 40, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.3s ease-in-out;
+        }
+        .styled-card:hover {
+            border-color: #8b5cf6;
+            transform: translateY(-4px);
+        }
+        .side-nav a {
+            transition: all 0.2s ease-in-out;
+            border-left: 2px solid transparent;
+        }
+        .side-nav a:hover, .side-nav a.active {
+            color: #c084fc;
+            border-left-color: #c084fc;
+            background-color: rgba(192, 132, 252, 0.05);
+        }
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        .choice-button {
+            transition: all 0.2s ease-in-out;
+        }
+        .choice-button.selected {
+            background-color: #6d28d9;
+            border-color: #8b5cf6;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+    </style>
+</head>
+<body class="text-gray-200 antialiased">
 
+    <div class="background-aurora"></div>
+    
+    <div id="app-container" class="container mx-auto max-w-7xl px-4 py-12 md:py-20">
+        <!-- Conteúdo dinâmico da aplicação será inserido aqui -->
+    </div>
+
+    <!-- Templates HTML -->
+    <template id="login-template">
+        <div class="max-w-md mx-auto">
+            <header class="text-center mb-12">
+                <h1 class="text-5xl md:text-6xl font-extrabold gradient-text">Vende.AI</h1>
+                <p class="text-gray-400 mt-3 text-lg">Sua diretora de marketing com Inteligência Artificial.</p>
+            </header>
+            <div class="styled-card rounded-2xl p-8">
+                <h2 class="text-2xl font-bold text-center mb-6">Acesse sua Conta</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                        <input type="email" id="email" class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-400 mb-2">Senha</label>
+                        <input type="password" id="password" class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                    </div>
+                </div>
+                <p id="auth-error" class="text-red-400 text-sm mt-4 text-center hidden"></p>
+                <div class="mt-6 flex flex-col sm:flex-row gap-4">
+                    <button id="login-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition">Entrar</button>
+                    <button id="signup-btn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition">Criar Conta</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="dashboard-template">
+        <header class="text-center mb-8 flex justify-between items-center">
+            <h1 class="text-3xl font-bold gradient-text">Painel de Controlo</h1>
+            <div>
+                <span id="user-email" class="text-gray-400 mr-4"></span>
+                <button id="logout-btn" class="text-indigo-400 hover:text-indigo-300 font-semibold transition">Sair</button>
+            </div>
+        </header>
+        <div class="flex justify-end mb-6">
+            <button id="new-plan-btn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105">
+                + Gerar Novo Plano de Ação
+            </button>
+        </div>
+        <div id="plans-list" class="styled-card rounded-2xl p-6">
+            <!-- Lista de planos será inserida aqui -->
+        </div>
+    </template>
+
+    <template id="admin-dashboard-template">
+         <header class="text-center mb-8 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-red-400">Painel de Administração</h1>
+            <div>
+                <span id="admin-email" class="text-gray-400 mr-4"></span>
+                <button id="admin-logout-btn" class="text-indigo-400 hover:text-indigo-300 font-semibold transition">Sair</button>
+            </div>
+        </header>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="styled-card p-6 rounded-2xl text-center"><h3 class="text-lg text-gray-400">Total de Utilizadores</h3><p class="text-4xl font-bold">1,234</p></div>
+            <div class="styled-card p-6 rounded-2xl text-center"><h3 class="text-lg text-gray-400">Planos Gerados (Hoje)</h3><p class="text-4xl font-bold">56</p></div>
+            <div class="styled-card p-6 rounded-2xl text-center"><h3 class="text-lg text-gray-400">Assinantes Ativos</h3><p class="text-4xl font-bold">289</p></div>
+        </div>
+        <div class="styled-card rounded-2xl p-6"><h3 class="text-xl font-bold mb-4">Atividade Recente</h3><canvas id="activityChart"></canvas></div>
+    </template>
+    
+    <template id="generator-template">
+        <main class="styled-card rounded-2xl p-6 md:p-8 shadow-2xl shadow-indigo-500/10 max-w-5xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold gradient-text">Criar Novo Plano de Ação</h2>
+                <button id="back-to-dashboard-btn" class="text-indigo-400 hover:text-indigo-300 font-semibold transition">Voltar ao Painel</button>
+            </div>
+            <div id="strategy-selection">
+                <div class="mb-6"><h3 class="text-xl font-semibold text-center mb-4">Qual é o seu objetivo principal hoje?</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><button class="choice-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg border-2 border-gray-600" data-choice="product">Divulgar um Produto Específico</button><button class="choice-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg border-2 border-gray-600" data-choice="store">Divulgar minha Loja/Marca</button></div></div>
+                <div class="mb-8"><h3 class="text-xl font-semibold text-center mb-4">Onde seu negócio opera?</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><button class="choice-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg border-2 border-gray-600" data-type="online">Online (E-commerce)</button><button class="choice-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg border-2 border-gray-600" data-type="physical">Físico (Loja de Rua)</button><button class="choice-button bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg border-2 border-gray-600" data-type="both">Ambos</button></div></div>
+            </div>
+            <div id="dynamic-form" class="hidden"><div class="grid md:grid-cols-2 gap-6 items-center mb-6"><div class="text-center"><label for="imageUpload" class="cursor-pointer inline-block bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold py-3 px-6 rounded-lg transition w-full">📷 Enviar Foto</label><input type="file" id="imageUpload" class="hidden" accept="image/*"></div><div class="relative"><input type="url" id="productUrl" class="w-full bg-gray-900/50 border border-gray-700 rounded-lg pl-4 pr-32 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition" placeholder="Ou cole o link..."><button id="analyzeUrlButton" class="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md text-sm transition">Analisar</button></div></div><p class="text-sm text-gray-500 mt-2 text-center mb-6">A IA preencherá os campos abaixo. Depois, é só editar e gerar seu plano!</p><div id="imageAnalysisSection" class="mb-4 text-center hidden"><img id="imagePreview" class="max-h-60 rounded-lg inline-block shadow-lg" /><p id="imageAnalysisStatus" class="text-lg font-semibold text-purple-400 mt-3"></p><div id="itemSelectionContainer" class="mt-4 flex flex-wrap justify-center gap-3"></div></div>
+                <div class="space-y-6">
+                    <div><label for="productName" class="block text-sm font-medium text-gray-400 mb-2">1. Nome do Produto/Loja</label><input type="text" id="productName" class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition" placeholder="Preenchido pela IA ou manualmente"></div>
+                    <div class="grid md:grid-cols-2 gap-6"><div><label for="targetAudience" class="block text-sm font-medium text-gray-400 mb-2">2. Público-Alvo</label><input type="text" id="targetAudience" class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition" placeholder="Ex: Mulheres de 25 a 40 anos"></div><div><label for="brandVoice" class="block text-sm font-medium text-gray-400 mb-2">3. Tom de Voz da Marca</label><input type="text" id="brandVoice" class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition" placeholder="Ex: Divertido e jovem, profissional"></div></div>
+                    <div><label for="productDescription" class="block text-sm font-medium text-gray-400 mb-2">4. Descrição e Diferenciais</label><textarea id="productDescription" rows="3" class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition" placeholder="Ex: Feita com cera de coco 100% vegetal, aroma de lavanda..."></textarea></div>
+                </div>
+                <div class="mt-8 text-center"><button id="generateButton" class="w-full md:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-12 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/30 flex items-center justify-center mx-auto"><span id="buttonText">Gerar e Salvar Plano</span><div id="loader" class="loader hidden ml-3"></div></button></div>
+            </div>
+        </main>
+    </template>
+    
+    <template id="plan-view-template">
+        <header class="text-center mb-8 flex justify-between items-center"><h1 id="plan-title" class="text-3xl font-bold gradient-text"></h1><button id="back-to-dashboard-btn-plan" class="text-indigo-400 hover:text-indigo-300 font-semibold transition">Voltar ao Painel</button></header>
+        <section id="resultsSection"><div class="flex flex-col md:flex-row gap-8 lg:gap-12"><aside class="md:w-1/4 lg:w-1/5"><nav id="side-menu" class="sticky top-20 side-nav flex flex-col space-y-2"></nav></aside><div id="results-content" class="md:w-3/4 lg:w-4/5 space-y-12"></div></div></section>
+    </template>
+
+    <script type="module">
+        // --- Módulos Firebase ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Configuração ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        
+        let app, auth, db, userId;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Erro na inicialização do Firebase:", e);
+            document.getElementById('app-container').innerHTML = `<p class="text-red-500 text-center p-8">Erro crítico na configuração.</p>`;
+        }
+
+        const appContainer = document.getElementById('app-container');
+
+        // --- Lógica de Autenticação e Roteamento ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                userId = user.uid;
+                if (user.email === 'admin@vende.ai') {
+                    renderAdminDashboard();
+                } else {
+                    renderUserDashboard();
+                }
+            } else {
+                userId = null;
+                renderLogin();
+            }
+        });
+
+        // --- Funções de Renderização de Views ---
+        function renderLogin() {
+            const template = document.getElementById('login-template').content.cloneNode(true);
+            appContainer.innerHTML = '';
+            appContainer.appendChild(template);
+
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('signup-btn').addEventListener('click', handleSignup);
+        }
+
+        function renderUserDashboard() {
+            const template = document.getElementById('dashboard-template').content.cloneNode(true);
+            appContainer.innerHTML = '';
+            appContainer.appendChild(template);
+            
+            document.getElementById('user-email').textContent = auth.currentUser.email;
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+            document.getElementById('new-plan-btn').addEventListener('click', renderGeneratorView);
+
+            loadUserPlans();
+        }
+        
+        function renderAdminDashboard() {
+            const template = document.getElementById('admin-dashboard-template').content.cloneNode(true);
+            appContainer.innerHTML = '';
+            appContainer.appendChild(template);
+
+            document.getElementById('admin-email').textContent = `Admin: ${auth.currentUser.email}`;
+            document.getElementById('admin-logout-btn').addEventListener('click', () => signOut(auth));
+
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'],
+                    datasets: [{
+                        label: 'Planos Gerados na Semana',
+                        data: [12, 19, 3, 5, 2, 3, 10],
+                        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                        borderColor: 'rgba(139, 92, 246, 1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
+            });
+        }
+        
+        function renderGeneratorView() {
+            const template = document.getElementById('generator-template').content.cloneNode(true);
+            appContainer.innerHTML = '';
+            appContainer.appendChild(template);
+            
+            document.getElementById('back-to-dashboard-btn').addEventListener('click', renderUserDashboard);
+            
+            // Re-anexa todos os event listeners do gerador
+            const generateButton = document.getElementById('generateButton');
+            const strategySelection = document.getElementById('strategy-selection');
+            const dynamicForm = document.getElementById('dynamic-form');
+            
+            let userChoice = { objective: null, type: null };
+
+            strategySelection.addEventListener('click', (e) => {
+                if (e.target.dataset.choice) {
+                    document.querySelectorAll('[data-choice]').forEach(btn => btn.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    userChoice.objective = e.target.dataset.choice;
+                }
+                if (e.target.dataset.type) {
+                    document.querySelectorAll('[data-type]').forEach(btn => btn.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    userChoice.type = e.target.dataset.type;
+                }
+
+                if (userChoice.objective && userChoice.type) {
+                    strategySelection.classList.add('hidden');
+                    dynamicForm.classList.remove('hidden');
+                    dynamicForm.classList.add('fade-in-up');
+                    const nameLabel = document.querySelector('label[for="productName"]');
+                    const descLabel = document.querySelector('label[for="productDescription"]');
+                    if (userChoice.objective === 'store') {
+                        nameLabel.textContent = '1. Nome da Loja';
+                        descLabel.textContent = '4. O que sua loja vende e quais seus diferenciais?';
+                    } else {
+                        nameLabel.textContent = '1. Nome do Produto';
+                        descLabel.textContent = '4. Descrição e Diferenciais do Produto';
+                    }
+                }
+            });
+
+            generateButton.addEventListener('click', async () => {
+                const productName = document.getElementById('productName').value;
+                const targetAudience = document.getElementById('targetAudience').value;
+                const productDescription = document.getElementById('productDescription').value;
+                const brandVoice = document.getElementById('brandVoice').value;
+
+                if (!validateInputs(productName, targetAudience, productDescription)) return;
+                setLoadingState(true, document.getElementById('buttonText'), document.getElementById('loader'), generateButton);
+
+                try {
+                    const aiResponse = await getAiContent(productName, targetAudience, productDescription, brandVoice, userChoice);
+                    
+                    const planRef = await addDoc(collection(db, `artifacts/${appId}/users/${userId}/plans`), {
+                        title: productName,
+                        content: aiResponse,
+                        status: 'planejamento',
+                        createdAt: serverTimestamp()
+                    });
+
+                    renderPlanView(planRef.id);
+
+                } catch (error) {
+                    console.error("Erro ao chamar a API da IA:", error);
+                    showError();
+                } finally {
+                    setLoadingState(false, document.getElementById('buttonText'), document.getElementById('loader'), generateButton);
+                }
+            });
+        }
+        
+        async function renderPlanView(planId) {
+            const template = document.getElementById('plan-view-template').content.cloneNode(true);
+            appContainer.innerHTML = '';
+            appContainer.appendChild(template);
+            
+            document.getElementById('back-to-dashboard-btn-plan').addEventListener('click', renderUserDashboard);
+
+            const planRef = doc(db, `artifacts/${appId}/users/${userId}/plans`, planId);
+            const docSnap = await getDoc(planRef);
+
+            if (docSnap.exists()) {
+                const planData = docSnap.data();
+                document.getElementById('plan-title').textContent = planData.title;
+                displayContent(planData.content);
+            } else {
+                appContainer.innerHTML = `<p class="text-center text-red-500">Plano não encontrado.</p>`;
+            }
+        }
+
+
+        // --- Lógica de Login/Signup ---
+        async function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const authError = document.getElementById('auth-error');
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                authError.classList.add('hidden');
+            } catch (error) {
+                authError.textContent = "Email ou senha inválidos.";
+                authError.classList.remove('hidden');
+            }
+        }
+
+        async function handleSignup() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const authError = document.getElementById('auth-error');
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const profileRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile`, "main");
+                await setDoc(profileRef, { name: 'Minha Nova Marca', plan: 'free', createdAt: serverTimestamp() });
+                authError.classList.add('hidden');
+            } catch (error) {
+                authError.textContent = "Erro ao criar conta. Verifique os dados.";
+                authError.classList.remove('hidden');
+            }
+        }
+
+        // --- Lógica do Painel do Utilizador ---
+        function loadUserPlans() {
+            if (!userId) return;
+            const plansCollection = collection(db, `artifacts/${appId}/users/${userId}/plans`);
+            const plansList = document.getElementById('plans-list');
+
+            onSnapshot(plansCollection, (snapshot) => {
+                if (snapshot.empty) {
+                    plansList.innerHTML = `<p class="text-center text-gray-400">Nenhum plano de ação encontrado. Clique em "Gerar Novo Plano" para começar!</p>`;
+                    return;
+                }
+                plansList.innerHTML = ''; // Limpa a lista
+                snapshot.forEach(doc => {
+                    const plan = doc.data();
+                    const planElement = document.createElement('div');
+                    planElement.className = 'flex items-center justify-between p-4 border-b border-gray-700';
+                    planElement.innerHTML = `
+                        <div>
+                            <p class="font-bold text-lg">${plan.title || 'Plano Sem Título'}</p>
+                            <p class="text-sm text-gray-400">Criado em: ${plan.createdAt?.toDate().toLocaleDateString() || 'Data indisponível'}</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <select class="status-select bg-gray-800 border border-gray-600 rounded-md px-2 py-1 text-sm" data-id="${doc.id}">
+                                <option value="planejamento" ${plan.status === 'planejamento' ? 'selected' : ''}>Planejamento</option>
+                                <option value="execucao" ${plan.status === 'execucao' ? 'selected' : ''}>Em Execução</option>
+                                <option value="concluido" ${plan.status === 'concluido' ? 'selected' : ''}>Concluído</option>
+                            </select>
+                            <button class="view-plan-btn text-blue-400 hover:underline" data-id="${doc.id}">Ver Plano</button>
+                        </div>
+                    `;
+                    plansList.appendChild(planElement);
+                });
+
+                document.querySelectorAll('.status-select').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        updatePlanStatus(e.target.dataset.id, e.target.value);
+                    });
+                });
+                document.querySelectorAll('.view-plan-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        renderPlanView(e.target.dataset.id);
+                    });
+                });
+            });
+        }
+
+        async function updatePlanStatus(planId, newStatus) {
+            if (!userId || !planId) return;
+            const planRef = doc(db, `artifacts/${appId}/users/${userId}/plans`, planId);
+            try {
+                await updateDoc(planRef, { status: newStatus });
+                showToast('Status atualizado com sucesso!', 'success');
+            } catch (error) {
+                console.error("Erro ao atualizar status:", error);
+                showToast('Falha ao atualizar status.', 'error');
+            }
+        }
+        
+        function showToast(message, type = 'success') {
+            const copyFeedback = document.createElement('div');
+            copyFeedback.id = 'copyFeedback'; // Re-add id for consistency
+            copyFeedback.textContent = message;
+            copyFeedback.className = `fixed bottom-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transition-opacity duration-300 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            document.body.appendChild(copyFeedback);
+            setTimeout(() => {
+                copyFeedback.classList.add('opacity-0');
+                setTimeout(() => copyFeedback.remove(), 300);
+            }, 2000);
+        }
+        
+        // --- Funções restantes (getAiContent, displayContent, etc.) precisam ser definidas aqui ---
+        // ...
+    </script>
+</body>
+</html>
